@@ -205,7 +205,7 @@
           input = stripper(input, / name="(.*?)"/gi, ' data-title="$1" alt="$1"');
 
           // Tag Stripper
-          var regex = new RegExp('<(/)*(meta|link|span|\\?xml:|st1:|o:|font)(.*?)>', 'gi');
+          var regex = new RegExp('<(/)*(meta|link|\\?xml:|st1:|o:|font)(.*?)>', 'gi');
           input = stripper(input, regex, '');
 
           // Remove 'badTags'
