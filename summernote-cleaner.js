@@ -188,32 +188,71 @@
         }
 
         var cleanHtmlPaste = function (input, badTags, keepTagContents, badAttributes, imagePlaceholder) {
-          var stringStripper = /(\n|\r| class=(")?Mso[a-zA-Z]+(")? ^p)/g;
-          var output = input.replace(stringStripper, '');
-          var commentSripper = new RegExp('<!--(.*?)-->', 'g');
-          var output = output.replace(commentSripper, '');
-          var tagStripper = new RegExp('<(/)*(meta|link|span|\\?xml:|st1:|o:|font)(.*?)>', 'gi');
-          output = output.replace(/ src="(.*?)"/gi, ' src="' + imagePlaceholder + '"');
-          output = output.replace(/ name="(.*?)"/gi, ' data-title="$1" alt="$1"');
-          output = output.replace(tagStripper, '');
+
+          // Remove Line Breaks and Carriage Returns
+          input = stripper(input, /(\n|\r)/g, ' ');
+
+          // Mso Class Stripper
+          input = stripper(input, /( class=(")?Mso[a-zA-Z]+(")?)/g, '');
+
+          // Remove Comments
+          input = stripper(input, /<!--(.*?)-->/g, '');
+
+          // Replace Images with Placeholder
+          input = stripper(input, / src="(.*?)"/gi, ' src="' + imagePlaceholder + '"');
+
+          // Convert name attributes to title/alt tags
+          input = stripper(input, / name="(.*?)"/gi, ' data-title="$1" alt="$1"');
+
+          // Tag Stripper
+          var regex = new RegExp('<(/)*(meta|link|span|\\?xml:|st1:|o:|font)(.*?)>', 'gi');
+          input = stripper(input, regex, '');
+
+          // Remove 'badTags'
           for (var i = 0; i < badTags.length; i++) {
-            tagStripper = new RegExp('<' + badTags[i] + '.*?' + badTags[i] + '(.*?)>', 'gi');
-            output = output.replace(tagStripper, '');
+            regex = new RegExp('<' + badTags[i] + '.*?' + badTags[i] + '(.*?)>', 'gi');
+            input = stripper(input, regex, '');
           }
+
+          // Keep Tag Contents for 'keepTagContents'
           for (var i = 0; i < keepTagContents.length; i++) {
-            tagStripper = new RegExp('</?' + keepTagContents[i] + '.*?>', 'gi');
-            output = output.replace(tagStripper, ' ');
+            regex = new RegExp('</?' + keepTagContents[i] + '.*?>', 'gi');
+            input = stripper(input, regex, '');
           }
+
+          // Remove 'badAttributes'
           for (var i = 0; i < badAttributes.length; i++) {
-            var attributeStripper = new RegExp(badAttributes[i] + '="(.*?)"', 'gi');
-            output = output.replace(attributeStripper, '');
+            var regex = new RegExp(badAttributes[i] + '="(.*?)"', 'gi');
+            input = stripper(input, regex, '');
           }
-          output = output.replace(/ align="(.*?)"/gi, ' class="text-$1"');
-          output = output.replace(/ class="western"/gi, '');
-          output = output.replace(/ class=""/gi, '');
-          output = output.replace(/<b>(.*?)<\/b>/gi, '<strong>$1</strong>');
-          output = output.replace(/<i>(.*?)<\/i>/gi, '<em>$1</em>');
-          output = output.replace(/\s{2,}/g, ' ').trim();
+
+          // Convert align attribute to class
+          input = stripper(input, / align="(.*?)"/gi, ' class="text-$1"');
+
+          // Remove 'western' class
+          input = stripper(input, / class="western"/gi, '');
+
+          // Remove empty classes
+          input = stripper(input, / class=""/gi, '');
+
+          // Convert <b> to <strong>
+          input = stripper(input, /<b>(.*?)<\/b>/gi, '<strong>$1</strong>');
+
+          // Convert <i> to <em>
+          input = stripper(input, /<i>(.*?)<\/i>/gi, '<em>$1</em>');
+
+          // Replace multiple whitespace with single
+          input = stripper(input, /\s{2,}/g, ' ').trim();
+
+          return input;
+        }
+
+        var stripper = function (input, regex, replacement) {
+          output = input.replace(regex, replacement);
+          // console.log(input);
+          // console.log(regex);
+          // console.log(replacement);
+          // console.log(output);
           return output;
         }
       }
