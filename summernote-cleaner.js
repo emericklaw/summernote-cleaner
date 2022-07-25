@@ -244,6 +244,15 @@
           // Replace multiple whitespace with single
           input = stripper(input, /\s{2,}/g, ' ').trim();
 
+          // Remove paragraphs <p> containing only line break <br>
+          input = stripper(input, /<p[^>]*?>[ ]*?<br[ /]*?>[ ]*?<\/p>/gi, '');
+
+          // Remove paragraphs <p> containing only &nbsp;
+          input = stripper(input, /<p[^>]*?>[ ]*?&nbsp;[ ]*?<\/p>/gi, '');
+
+          // Remove paragraphs <p><span> containing only &nbsp;
+          input = stripper(input, /<p[^>]*?>[ ]*?<span[^>]*?>[ ]*?&nbsp;[ ]*?<\/span>[ ]*?<\/p>/gi, '');
+
           return input;
         }
 
